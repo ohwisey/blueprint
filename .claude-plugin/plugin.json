@@ -1,0 +1,8 @@
+{
+  "name": "blueprint",
+  "version": "0.1.0",
+  "description": "Draw on a screenshot (circle, box, arrow, pin) with a note per mark, then hand Claude the marked-up image plus your notes automatically. No copy-paste.",
+  "author": { "name": "Luke Wise" },
+  "license": "MIT",
+  "keywords": ["design", "annotation", "screenshot", "blueprint", "brainstorming"]
+}

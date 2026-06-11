@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Blueprint</title>
+<style>
+  :root{
+    --bg:#000; --panel:#0b0d0c; --panel-2:#101312; --line:#1d231f;
+    --mint:#7fe7c4; --mint-dim:#3f7a66; --text:#e7ece9; --muted:#8a938e; --amber:#c9824f;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    background:var(--bg); color:var(--text);
+    font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    -webkit-font-smoothing:antialiased; padding:24px;
+  }
+  .serif{font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;font-style:italic}
+  .wrap{max-width:1320px;margin:0 auto}
+  header{margin-bottom:18px;display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+  h1{font-size:26px;font-weight:600;letter-spacing:-.02em}
+  h1 .accent{color:var(--mint)}
+  .target{color:var(--muted);font-size:13px}
+  .target b{color:var(--text);font-weight:500}
+
+  .layout{display:grid;grid-template-columns:1fr 350px;gap:16px;align-items:start}
+  @media (max-width:980px){.layout{grid-template-columns:1fr}}
+
+  .stage{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:14px}
+  .toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center}
+  .tool{
+    background:var(--panel-2);border:1px solid var(--line);color:var(--text);
+    font-size:13px;font-family:inherit;padding:9px 13px;border-radius:10px;cursor:pointer;
+    display:flex;align-items:center;gap:7px;transition:border-color .15s, background .15s;
+  }
+  .tool:hover{border-color:var(--mint-dim)}
+  .tool.active{border-color:var(--mint);background:rgba(127,231,196,.08);color:var(--mint)}
+  .tool svg{width:15px;height:15px}
+  .spacer{flex:1}
+  .ghost{color:var(--muted);font-size:12px}
+
+  .canvas-host{position:relative;border-radius:12px;overflow:hidden;background:#050706;border:1px solid var(--line);min-height:120px}
+  canvas{display:block;width:100%;cursor:crosshair}
+
+  .drop{
+    position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:10px;color:var(--muted);font-size:14px;text-align:center;padding:30px;
+    border:1.5px dashed var(--line);border-radius:12px;background:#050706;cursor:pointer;
+  }
+  .drop.hide{display:none}
+  .drop.over{border-color:var(--mint);color:var(--mint)}
+  .drop svg{width:34px;height:34px;opacity:.6}
+
+  .note-pop{
+    position:absolute;z-index:30;width:290px;background:var(--panel-2);border:1px solid var(--mint-dim);
+    border-radius:14px;padding:14px;box-shadow:0 18px 50px rgba(0,0,0,.6);display:none;
+  }
+  .note-pop.show{display:block}
+  .note-pop label{font-size:11px;color:var(--mint);text-transform:uppercase;letter-spacing:.08em;display:block;margin-bottom:7px}
+  .note-pop .kind{display:flex;gap:6px;margin-bottom:9px;flex-wrap:wrap}
+  .chip{font-size:11px;border:1px solid var(--line);color:var(--muted);border-radius:999px;padding:4px 9px;cursor:pointer;font-family:inherit}
+  .chip.on{border-color:var(--mint);color:var(--mint);background:rgba(127,231,196,.08)}
+  .note-pop textarea{
+    width:100%;height:62px;resize:none;background:#0a0c0b;border:1px solid var(--line);
+    color:var(--text);border-radius:9px;padding:9px;font-family:inherit;font-size:13px;outline:none;
+  }
+  .note-pop textarea:focus{border-color:var(--mint-dim)}
+  .note-pop .row{display:flex;gap:8px;margin-top:10px}
+  .btn{
+    flex:1;font-family:inherit;font-size:13px;border-radius:9px;padding:9px;cursor:pointer;
+    border:1px solid var(--line);background:transparent;color:var(--muted);
+  }
+  .btn:hover{border-color:var(--mint-dim)}
+  .btn.primary{background:var(--mint);color:#04110c;border-color:var(--mint);font-weight:600}
+  .btn.primary:hover{filter:brightness(1.05)}
+
+  .side{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:16px;min-height:200px}
+  .side h2{font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:12px;display:flex;justify-content:space-between}
+  .side h2 span{color:var(--mint)}
+  .empty{color:var(--muted);font-size:13px;line-height:1.6;border:1px dashed var(--line);border-radius:12px;padding:16px;text-align:center}
+  .mark{display:flex;gap:11px;padding:11px;border:1px solid var(--line);border-radius:12px;margin-bottom:9px;background:var(--panel-2)}
+  .mark .num{flex:none;width:24px;height:24px;border-radius:50%;background:var(--mint);color:#04110c;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center}
+  .mark .body{flex:1;min-width:0}
+  .mark .body .k{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--mint-dim);margin-bottom:3px}
+  .mark .body .t{font-size:13px;line-height:1.45;color:var(--text);word-break:break-word}
+  .mark .x{color:var(--muted);cursor:pointer;font-size:14px;flex:none}
+  .mark .x:hover{color:var(--amber)}
+  .actions{display:flex;gap:9px;margin-top:14px}
+
+  .overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);display:none;align-items:center;justify-content:center;z-index:60;padding:24px}
+  .overlay.show{display:flex}
+  .overlay-card{background:var(--panel);border:1px solid var(--line);border-radius:18px;max-width:460px;width:100%;padding:28px;text-align:center}
+  .overlay-card .mk{width:54px;height:54px;border-radius:50%;background:rgba(127,231,196,.12);border:1px solid var(--mint-dim);display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
+  .overlay-card .mk svg{width:26px;height:26px;color:var(--mint)}
+  .overlay-card h3{font-size:21px;font-weight:600;margin-bottom:8px}
+  .overlay-card p{color:var(--muted);font-size:14px;line-height:1.55;margin-bottom:18px}
+  .overlay-card.err .mk{background:rgba(201,130,79,.12);border-color:var(--amber)}
+  .overlay-card.err .mk svg{color:var(--amber)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1><span class="accent serif">Blueprint</span></h1>
+    <div class="target">Marking up <b id="targetName">your screenshot</b>. Draw, note each mark, then hit Done.</div>
+  </header>
+
+  <div class="layout">
+    <div class="stage">
+      <div class="toolbar">
+        <button class="tool active" data-tool="circle">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"/></svg>Circle
+        </button>
+        <button class="tool" data-tool="box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="5" width="16" height="14" rx="2"/></svg>Box
+        </button>
+        <button class="tool" data-tool="arrow">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="20" x2="20" y2="6"/><polyline points="11 5 20 6 19 15"/></svg>Arrow
+        </button>
+        <button class="tool" data-tool="pin">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s7-6.3 7-11a7 7 0 1 0-14 0c0 4.7 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>Pin
+        </button>
+        <div class="spacer"></div>
+        <label class="tool" style="cursor:pointer">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 16l5-5 4 4 7-7"/><path d="M4 20h16"/></svg>
+          Change image
+          <input id="file" type="file" accept="image/*" style="display:none" />
+        </label>
+      </div>
+
+      <div class="canvas-host" id="host">
+        <canvas id="cv"></canvas>
+        <div class="drop" id="drop">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 16V4m0 0L8 8m4-4l4 4"/><path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+          <div>Drop a screenshot here, or click to choose one.</div>
+        </div>
+        <div class="note-pop" id="pop">
+          <label>What about this spot?</label>
+          <div class="kind" id="kinds">
+            <span class="chip on" data-k="add">add</span>
+            <span class="chip" data-k="move">move</span>
+            <span class="chip" data-k="remove">remove</span>
+            <span class="chip" data-k="connect">connect</span>
+            <span class="chip" data-k="restyle">restyle</span>
+            <span class="chip" data-k="note">note</span>
+          </div>
+          <textarea id="noteText" placeholder="e.g. Vee tile goes here. Make it the motherboard, wired to every other tile."></textarea>
+          <div class="row">
+            <button class="btn" id="noteCancel">cancel</button>
+            <button class="btn primary" id="noteSave">pin note</button>
+          </div>
+        </div>
+      </div>
+      <p class="ghost" style="margin-top:10px">Tip: pick a tool, drag on the image, then write what you want there. Numbers match the notes on the right.</p>
+    </div>
+
+    <div class="side">
+      <h2>Marks <span id="count">0</span></h2>
+      <div id="list"></div>
+      <div class="empty" id="empty">No marks yet.<br/>Draw on the image and pin a note to start your blueprint.</div>
+      <div class="actions">
+        <button class="btn" id="clearBtn">clear</button>
+        <button class="btn primary" id="doneBtn">Done</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="overlay-card" id="overlayCard">
+    <div class="mk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg></div>
+    <h3 id="ovTitle">Sent to Claude</h3>
+    <p id="ovText">Your blueprint is saved. Head back to Claude Code. You can close this tab.</p>
+    <button class="btn primary" id="ovClose" style="display:none">download the files</button>
+  </div>
+</div>
+
+<script>
+const cv = document.getElementById('cv');
+const ctx = cv.getContext('2d');
+const host = document.getElementById('host');
+const dropEl = document.getElementById('drop');
+let tool = 'circle';
+let marks = [];          // geometry stored in NORMALIZED 0..1 coords
+let drawing = false, start = null;
+let pendingGeom = null, pendingKind = 'add';
+let bgImage = null, imgNatW = 0, imgNatH = 0;
+let cfg = { target: 'your screenshot', port: null, mode: 'server' };
+
+// ---- config from the server (if any) ----
+async function loadConfig(){
+  try{
+    const r = await fetch('/config', {cache:'no-store'});
+    if(r.ok){
+      cfg = Object.assign(cfg, await r.json());
+      if(cfg.target){ document.getElementById('targetName').textContent = cfg.target; }
+      if(cfg.hasImage){ await loadImageFromUrl('/screenshot'); }
+    }
+  }catch(e){ /* opened directly (no server) -> download/drag-drop mode */
+    cfg.mode = 'download';
+  }
+}
+
+function loadImageFromUrl(url){
+  return new Promise(res=>{
+    const img = new Image();
+    img.onload=()=>{ setImage(img); res(); };
+    img.onerror=()=>res();
+    img.src = url;
+  });
+}
+function setImage(img){
+  bgImage = img; imgNatW = img.naturalWidth || img.width; imgNatH = img.naturalHeight || img.height;
+  marks = [];
+  dropEl.classList.add('hide');
+  fit(); renderList();
+}
+
+// ---- sizing: canvas matches image aspect so canvas space == image space ----
+function fit(){
+  const w = host.clientWidth;
+  const aspect = (bgImage && imgNatH) ? (imgNatW/imgNatH) : 1.6;
+  const h = Math.round(w/aspect);
+  cv.width = w; cv.height = h; cv.style.height = h + 'px';
+  render();
+}
+
+function render(prev){
+  ctx.fillStyle = '#050706'; ctx.fillRect(0,0,cv.width,cv.height);
+  if(bgImage){ ctx.drawImage(bgImage, 0, 0, cv.width, cv.height); }
+  marks.forEach(m=>drawShape(m.geom, m.tool, m.n));
+  if(prev) drawShape(prev.geom, prev.tool, null, true);
+}
+
+// geom is normalized; convert to px for drawing
+function px(geom, t){
+  const W=cv.width, H=cv.height;
+  if(t==='circle') return {cx:geom.cx*W, cy:geom.cy*H, rx:geom.rx*W, ry:geom.ry*H};
+  if(t==='box') return {x:geom.x*W, y:geom.y*H, w:geom.w*W, h:geom.h*H};
+  if(t==='arrow') return {x1:geom.x1*W, y1:geom.y1*H, x2:geom.x2*W, y2:geom.y2*H};
+  return {x:geom.x*W, y:geom.y*H};
+}
+function drawShape(geom, t, n, live){
+  const g = px(geom, t);
+  ctx.save();
+  ctx.strokeStyle = live ? 'rgba(127,231,196,.6)' : '#7fe7c4';
+  ctx.fillStyle = '#7fe7c4'; ctx.lineWidth = 2.5;
+  if(t==='circle'){
+    ctx.beginPath(); ctx.ellipse(g.cx,g.cy,Math.abs(g.rx),Math.abs(g.ry),0,0,Math.PI*2); ctx.stroke();
+  } else if(t==='box'){
+    ctx.strokeRect(g.x,g.y,g.w,g.h);
+  } else if(t==='arrow'){
+    ctx.beginPath(); ctx.moveTo(g.x1,g.y1); ctx.lineTo(g.x2,g.y2); ctx.stroke();
+    const a=Math.atan2(g.y2-g.y1,g.x2-g.x1), s=12;
+    ctx.beginPath(); ctx.moveTo(g.x2,g.y2);
+    ctx.lineTo(g.x2-s*Math.cos(a-0.4),g.y2-s*Math.sin(a-0.4));
+    ctx.lineTo(g.x2-s*Math.cos(a+0.4),g.y2-s*Math.sin(a+0.4));
+    ctx.closePath(); ctx.fill();
+  } else if(t==='pin'){
+    ctx.beginPath(); ctx.arc(g.x,g.y,7,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(g.x,g.y,12,0,Math.PI*2); ctx.stroke();
+  }
+  if(n!==null && n!==undefined){
+    const p = labelPoint(g,t);
+    ctx.fillStyle='#7fe7c4'; ctx.beginPath(); ctx.arc(p.x,p.y,11,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#04110c'; ctx.font='bold 13px Inter, sans-serif';
+    ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(n, p.x, p.y);
+    ctx.textAlign='start'; ctx.textBaseline='alphabetic';
+  }
+  ctx.restore();
+}
+function labelPoint(g,t){
+  if(t==='circle') return {x:g.cx+Math.abs(g.rx)*0.71, y:g.cy-Math.abs(g.ry)*0.71};
+  if(t==='box') return {x:g.x+g.w, y:g.y};
+  if(t==='arrow') return {x:g.x1, y:g.y1};
+  return {x:g.x+10, y:g.y-12};
+}
+
+// ---- pointer (normalized) ----
+function norm(e){
+  const r=cv.getBoundingClientRect();
+  return {x:(e.clientX-r.left)/r.width, y:(e.clientY-r.top)/r.height};
+}
+cv.addEventListener('pointerdown', e=>{
+  if(!bgImage) return;
+  if(document.getElementById('pop').classList.contains('show')) return;
+  drawing=true; start=norm(e);
+  if(tool==='pin'){ drawing=false; finishGeom({x:start.x,y:start.y}); }
+});
+cv.addEventListener('pointermove', e=>{
+  if(!drawing) return;
+  render({geom:buildGeom(start,norm(e)), tool});
+});
+cv.addEventListener('pointerup', e=>{
+  if(!drawing) return;
+  drawing=false; const g=buildGeom(start,norm(e));
+  if(tool==='circle' && (Math.abs(g.rx)<0.008||Math.abs(g.ry)<0.008)){render();return;}
+  if(tool==='box' && (Math.abs(g.w)<0.01||Math.abs(g.h)<0.01)){render();return;}
+  if(tool==='arrow' && Math.hypot((g.x2-g.x1),(g.y2-g.y1))<0.012){render();return;}
+  finishGeom(g);
+});
+function buildGeom(a,b){
+  if(tool==='circle') return {cx:(a.x+b.x)/2, cy:(a.y+b.y)/2, rx:(b.x-a.x)/2, ry:(b.y-a.y)/2};
+  if(tool==='box') return {x:Math.min(a.x,b.x), y:Math.min(a.y,b.y), w:Math.abs(b.x-a.x), h:Math.abs(b.y-a.y)};
+  if(tool==='arrow') return {x1:a.x,y1:a.y,x2:b.x,y2:b.y};
+  return {x:a.x,y:a.y};
+}
+
+// ---- note popover ----
+const pop=document.getElementById('pop');
+function finishGeom(g){
+  pendingGeom = {geom:g, tool}; render(pendingGeom);
+  let lx, ly;
+  if(tool==='circle'){lx=g.cx; ly=g.cy;}
+  else if(tool==='box'){lx=g.x+g.w/2; ly=g.y+g.h/2;}
+  else if(tool==='arrow'){lx=g.x2; ly=g.y2;}
+  else {lx=g.x; ly=g.y;}
+  const W=cv.width, H=cv.height, w=290, ph=200;
+  let pxv=Math.min(Math.max(lx*W-w/2,8), W-w-8);
+  let pyv=ly*H+16; if(pyv+ph>H) pyv=Math.max(ly*H-ph-8,8);
+  pop.style.left=pxv+'px'; pop.style.top=pyv+'px'; pop.classList.add('show');
+  pendingKind='add';
+  document.querySelectorAll('#kinds .chip').forEach(c=>c.classList.toggle('on',c.dataset.k==='add'));
+  const ta=document.getElementById('noteText'); ta.value=''; setTimeout(()=>ta.focus(),20);
+}
+document.querySelectorAll('#kinds .chip').forEach(c=>{
+  c.addEventListener('click',()=>{
+    document.querySelectorAll('#kinds .chip').forEach(x=>x.classList.remove('on'));
+    c.classList.add('on'); pendingKind=c.dataset.k;
+  });
+});
+document.getElementById('noteCancel').addEventListener('click',()=>{ pop.classList.remove('show'); pendingGeom=null; render(); });
+document.getElementById('noteSave').addEventListener('click', saveNote);
+document.getElementById('noteText').addEventListener('keydown',e=>{ if(e.key==='Enter' && (e.metaKey||e.ctrlKey)) saveNote(); });
+function saveNote(){
+  const note=document.getElementById('noteText').value.trim() || '(no note)';
+  marks.push({n:marks.length+1, tool:pendingGeom.tool, kind:pendingKind, note, geom:pendingGeom.geom});
+  pop.classList.remove('show'); pendingGeom=null; render(); renderList();
+}
+
+// ---- side list ----
+function renderList(){
+  const list=document.getElementById('list');
+  document.getElementById('count').textContent=marks.length;
+  document.getElementById('empty').style.display = marks.length?'none':'block';
+  list.innerHTML='';
+  marks.forEach((m,i)=>{
+    const el=document.createElement('div'); el.className='mark';
+    el.innerHTML=`<div class="num">${m.n}</div>
+      <div class="body"><div class="k">${m.tool} · ${m.kind}</div><div class="t">${escapeHtml(m.note)}</div></div>
+      <div class="x" title="remove">&times;</div>`;
+    el.querySelector('.x').addEventListener('click',()=>{ marks.splice(i,1); marks.forEach((mm,idx)=>mm.n=idx+1); render(); renderList(); });
+    list.appendChild(el);
+  });
+}
+function escapeHtml(s){return s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
+
+// ---- tools ----
+document.querySelectorAll('.tool[data-tool]').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('.tool[data-tool]').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active'); tool=b.dataset.tool;
+  });
+});
+document.getElementById('clearBtn').addEventListener('click',()=>{marks=[];render();renderList();});
+
+// ---- file load / drag-drop ----
+function loadFile(f){
+  if(!f) return;
+  const img=new Image();
+  img.onload=()=>setImage(img);
+  img.src=URL.createObjectURL(f);
+}
+document.getElementById('file').addEventListener('change',e=>loadFile(e.target.files[0]));
+dropEl.addEventListener('click',()=>document.getElementById('file').click());
+['dragenter','dragover'].forEach(ev=>dropEl.addEventListener(ev,e=>{e.preventDefault();dropEl.classList.add('over');}));
+['dragleave','drop'].forEach(ev=>dropEl.addEventListener(ev,e=>{e.preventDefault();dropEl.classList.remove('over');}));
+dropEl.addEventListener('drop',e=>{ const f=e.dataTransfer.files[0]; if(f) loadFile(f); });
+window.addEventListener('dragover',e=>e.preventDefault());
+window.addEventListener('drop',e=>{ if(!bgImage && e.dataTransfer.files[0]){ e.preventDefault(); loadFile(e.dataTransfer.files[0]); }});
+
+// ---- region + coords for export ----
+function regionOf(geom,t){
+  const cx = t==='circle'?geom.cx : t==='box'?geom.x+geom.w/2 : t==='arrow'?geom.x2 : geom.x;
+  const cy = t==='circle'?geom.cy : t==='box'?geom.y+geom.h/2 : t==='arrow'?geom.y2 : geom.y;
+  const h = cx<0.34?'left':cx<0.66?'center':'right';
+  const v = cy<0.34?'top':cy<0.66?'middle':'bottom';
+  if(h==='center'&&v==='middle') return 'dead center';
+  return v+' '+h;
+}
+function round(v){ return Math.round(v*1000)/1000; }
+function coordsOf(geom,t){
+  if(t==='circle') return {center:{x:round(geom.cx),y:round(geom.cy)}, r:{x:round(Math.abs(geom.rx)),y:round(Math.abs(geom.ry))}};
+  if(t==='box') return {x:round(geom.x),y:round(geom.y),w:round(geom.w),h:round(geom.h)};
+  if(t==='arrow') return {from:{x:round(geom.x1),y:round(geom.y1)}, to:{x:round(geom.x2),y:round(geom.y2)}};
+  return {x:round(geom.x),y:round(geom.y)};
+}
+
+// ---- Done: POST to server, or download fallback ----
+function buildPayload(){
+  return {
+    target: cfg.target || 'screenshot',
+    imageW: imgNatW || cv.width, imageH: imgNatH || cv.height,
+    png: cv.toDataURL('image/png'),
+    marks: marks.map(m=>({ n:m.n, shape:m.tool, tag:m.kind, note:m.note, region:regionOf(m.geom,m.tool), coords:coordsOf(m.geom,m.tool) }))
+  };
+}
+document.getElementById('doneBtn').addEventListener('click', submit);
+async function submit(){
+  if(!bgImage){ alert('Load a screenshot first.'); return; }
+  if(!marks.length){ alert('Draw at least one mark first.'); return; }
+  const payload = buildPayload();
+  let sent = false;
+  if(cfg.mode !== 'download'){
+    try{
+      const r = await fetch('/save', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)});
+      sent = r.ok;
+    }catch(e){ sent = false; }
+  }
+  if(sent){ showOverlay(false); }
+  else { downloadFallback(payload); showOverlay(true); }
+}
+function showOverlay(isFallback){
+  const card=document.getElementById('overlayCard');
+  if(isFallback){
+    card.classList.add('err');
+    document.getElementById('ovTitle').textContent='Saved to your Downloads';
+    document.getElementById('ovText').textContent='The local helper was not reachable, so the two files were downloaded instead. Go back to Claude Code and say "done" so it reads them.';
+    const b=document.getElementById('ovClose'); b.style.display='block'; b.textContent='download again';
+    b.onclick=()=>downloadFallback(buildPayload());
+  } else {
+    document.getElementById('ovTitle').textContent='Saved';
+    document.getElementById('ovText').textContent='Your blueprint is saved. Go back to Claude Code and say "done" so it reads your marks. You can close this tab.';
+  }
+  document.getElementById('overlay').classList.add('show');
+}
+function downloadFallback(payload){
+  const a=document.createElement('a'); a.href=payload.png; a.download='blueprint.png'; a.click();
+  const md = buildMarkdown(payload);
+  const blob=new Blob([md],{type:'text/markdown'});
+  const a2=document.createElement('a'); a2.href=URL.createObjectURL(blob); a2.download='blueprint.md';
+  setTimeout(()=>a2.click(), 400);
+}
+function buildMarkdown(p){
+  let s=`# Blueprint\nTarget: ${p.target}\nMarks: ${p.marks.length}\n\n`;
+  p.marks.forEach(m=>{
+    s+=`[${m.n}] ${m.shape} at ${m.region} — ${m.tag.toUpperCase()}\n      ${m.note}\n      coords: ${JSON.stringify(m.coords)} (img ${p.imageW}x${p.imageH})\n\n`;
+  });
+  s+=`---\nInstruction to Claude: apply each mark to the design. Numbers above match the circled numbers on the attached image (annotated.png).\n`;
+  return s;
+}
+
+window.addEventListener('resize',fit);
+fit(); renderList(); loadConfig();
+</script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+# Runtime output written into a user's project, never committed
+.blueprint/
+
+# OS / editor noise
+.DS_Store
+node_modules/
+*.log
