@@ -4,110 +4,145 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Blueprint</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Hanken+Grotesk:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 <style>
   :root{
-    --bg:#000; --panel:#0b0d0c; --panel-2:#101312; --line:#1d231f;
-    --mint:#7fe7c4; --mint-dim:#3f7a66; --text:#e7ece9; --muted:#8a938e; --amber:#c9824f;
+    --bg:#04060a; --ink:#e9efe9; --ink-dim:rgba(233,239,233,.62); --ink-faint:rgba(233,239,233,.34);
+    --rule:rgba(233,239,233,.12); --rule-strong:rgba(233,239,233,.22);
+    --mint:#6ee7b7; --mint-hi:#a7f3d0; --mint-glow:rgba(110,231,183,.4);
+    --iris:#a78bfa; --iris-hi:#c4b5fd; --iris-glow:rgba(167,139,250,.4); --amber:#f0a868;
+    --panel:linear-gradient(180deg,rgba(167,139,250,.05),rgba(255,255,255,.004));
+    --serif:'Instrument Serif',Georgia,serif; --sans:'Hanken Grotesk',-apple-system,sans-serif; --mono:'JetBrains Mono',monospace;
+    --ease:cubic-bezier(.16,1,.3,1); --spring:cubic-bezier(.34,1.56,.64,1);
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{height:100%}
-  body{
-    background:var(--bg); color:var(--text);
-    font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-    -webkit-font-smoothing:antialiased; padding:24px;
-  }
-  .serif{font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;font-style:italic}
-  .wrap{max-width:1320px;margin:0 auto}
-  header{margin-bottom:18px;display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
-  h1{font-size:26px;font-weight:600;letter-spacing:-.02em}
-  h1 .accent{color:var(--mint)}
-  .target{color:var(--muted);font-size:13px}
-  .target b{color:var(--text);font-weight:500}
+  body{background:var(--bg); color:var(--ink); font-family:var(--sans); -webkit-font-smoothing:antialiased; padding:30px 24px 44px; position:relative}
+  .sky{position:fixed; inset:0; z-index:0; pointer-events:none; background:radial-gradient(70% 28vh at 50% 0%, var(--iris-glow), transparent 70%); opacity:.3}
+  .wrap{position:relative; z-index:1; max-width:1320px; margin:0 auto}
 
-  .layout{display:grid;grid-template-columns:1fr 350px;gap:16px;align-items:start}
+  header{margin-bottom:22px; animation:cozyDown .6s var(--spring) both}
+  .eyebrow{font-family:var(--mono); font-size:.62rem; letter-spacing:.24em; text-transform:uppercase; color:var(--ink-faint); margin-bottom:7px}
+  h1{font-family:var(--serif); font-style:italic; font-size:2.3rem; font-weight:400; letter-spacing:-.01em; line-height:1}
+  h1 .accent{color:var(--iris-hi)}
+  .target{color:var(--ink-dim); font-size:.9rem; margin-top:9px}
+  .target b{color:var(--iris-hi); font-weight:400; font-family:var(--mono); font-size:.8rem}
+
+  @keyframes cozyDown{0%{opacity:0;transform:translateY(-10px)}100%{opacity:1;transform:none}}
+  @keyframes cozyPop{0%{opacity:0;transform:translateY(12px) scale(.96)}60%{transform:translateY(-3px) scale(1.012)}100%{opacity:1;transform:none}}
+  @keyframes qIcoPop{0%{opacity:0;transform:scale(.3) rotate(-12deg)}70%{opacity:1;transform:scale(1.18) rotate(4deg)}100%{opacity:1;transform:scale(1) rotate(0)}}
+  @keyframes checkBurst{0%{opacity:0;transform:scale(.3)}45%{opacity:1;transform:scale(1.2)}70%{transform:scale(.92)}100%{opacity:1;transform:scale(1)}}
+  @keyframes markIn{0%{opacity:0;transform:translateX(10px) scale(.96)}100%{opacity:1;transform:none}}
+
+  .layout{display:grid; grid-template-columns:1fr 350px; gap:16px; align-items:start}
   @media (max-width:980px){.layout{grid-template-columns:1fr}}
 
-  .stage{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:14px}
-  .toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center}
-  .tool{
-    background:var(--panel-2);border:1px solid var(--line);color:var(--text);
-    font-size:13px;font-family:inherit;padding:9px 13px;border-radius:10px;cursor:pointer;
-    display:flex;align-items:center;gap:7px;transition:border-color .15s, background .15s;
-  }
-  .tool:hover{border-color:var(--mint-dim)}
-  .tool.active{border-color:var(--mint);background:rgba(127,231,196,.08);color:var(--mint)}
-  .tool svg{width:15px;height:15px}
+  .topbar{display:flex; align-items:center; gap:10px; padding-bottom:16px; margin-bottom:20px; border-bottom:1px solid var(--rule); animation:cozyDown .6s var(--spring) both}
+  .tb-label{font-family:var(--mono); font-size:.6rem; letter-spacing:.18em; text-transform:uppercase; color:var(--ink-faint)}
+  .stage-col{min-width:0}
+  .stage{display:inline-block; width:fit-content; max-width:100%; background:var(--panel); border:1px solid var(--rule); border-radius:20px; padding:16px; animation:cozyPop .6s var(--spring) both}
+  .toolbar{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px; align-items:center}
+  .tool{font-family:var(--mono); font-size:.64rem; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-dim);
+    background:rgba(255,255,255,.02); border:1px solid var(--rule-strong); padding:10px 13px; border-radius:11px; cursor:pointer;
+    display:flex; align-items:center; gap:8px; transition:.16s var(--ease)}
+  .tool:hover{border-color:var(--iris); color:var(--iris-hi); transform:translateY(-1px)}
+  .tool.active{border-color:var(--iris); background:rgba(167,139,250,.12); color:var(--iris-hi)}
+  .tool svg{width:15px; height:15px}
   .spacer{flex:1}
-  .ghost{color:var(--muted);font-size:12px}
+  .ghost{color:var(--ink-faint); font-size:.78rem; line-height:1.5}
+  .ghost b{color:var(--iris-hi)}
 
-  .canvas-host{position:relative;border-radius:12px;overflow:hidden;background:#050706;border:1px solid var(--line);min-height:120px}
-  canvas{display:block;width:100%;cursor:crosshair}
+  .canvas-host{position:relative; border-radius:14px; overflow:hidden; background:#030407; border:1px solid var(--rule); min-height:120px}
+  canvas{display:block; cursor:crosshair}
 
-  .drop{
-    position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
-    gap:10px;color:var(--muted);font-size:14px;text-align:center;padding:30px;
-    border:1.5px dashed var(--line);border-radius:12px;background:#050706;cursor:pointer;
-  }
+  .drop{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px;
+    color:var(--ink-faint); font-size:.92rem; text-align:center; padding:30px; border:1.5px dashed var(--rule-strong); border-radius:14px; background:#030407; cursor:pointer; transition:.18s var(--ease)}
   .drop.hide{display:none}
-  .drop.over{border-color:var(--mint);color:var(--mint)}
-  .drop svg{width:34px;height:34px;opacity:.6}
+  .drop.over{border-color:var(--iris); color:var(--iris-hi); background:rgba(167,139,250,.04)}
+  .drop svg{width:34px; height:34px; opacity:.6}
 
-  .note-pop{
-    position:absolute;z-index:30;width:290px;background:var(--panel-2);border:1px solid var(--mint-dim);
-    border-radius:14px;padding:14px;box-shadow:0 18px 50px rgba(0,0,0,.6);display:none;
-  }
-  .note-pop.show{display:block}
-  .note-pop label{font-size:11px;color:var(--mint);text-transform:uppercase;letter-spacing:.08em;display:block;margin-bottom:7px}
-  .note-pop .kind{display:flex;gap:6px;margin-bottom:9px;flex-wrap:wrap}
-  .chip{font-size:11px;border:1px solid var(--line);color:var(--muted);border-radius:999px;padding:4px 9px;cursor:pointer;font-family:inherit}
-  .chip.on{border-color:var(--mint);color:var(--mint);background:rgba(127,231,196,.08)}
-  .note-pop textarea{
-    width:100%;height:62px;resize:none;background:#0a0c0b;border:1px solid var(--line);
-    color:var(--text);border-radius:9px;padding:9px;font-family:inherit;font-size:13px;outline:none;
-  }
-  .note-pop textarea:focus{border-color:var(--mint-dim)}
-  .note-pop .row{display:flex;gap:8px;margin-top:10px}
-  .btn{
-    flex:1;font-family:inherit;font-size:13px;border-radius:9px;padding:9px;cursor:pointer;
-    border:1px solid var(--line);background:transparent;color:var(--muted);
-  }
-  .btn:hover{border-color:var(--mint-dim)}
-  .btn.primary{background:var(--mint);color:#04110c;border-color:var(--mint);font-weight:600}
-  .btn.primary:hover{filter:brightness(1.05)}
+  .note-pop{position:absolute; z-index:30; width:322px; background:linear-gradient(180deg,rgba(167,139,250,.1),rgba(8,8,14,.97)); backdrop-filter:blur(12px); border:1px solid var(--iris); border-radius:18px; padding:16px; box-shadow:0 20px 55px rgba(0,0,0,.6); display:none}
+  .note-pop.show{display:block; animation:cozyPop .4s var(--spring) both}
+  .note-pop label{font-family:var(--serif); font-style:italic; font-size:1.2rem; color:var(--ink); display:block; margin-bottom:11px}
+  .note-pop .kind{display:flex; gap:7px; margin-bottom:9px; flex-wrap:wrap}
+  .chip{display:inline-flex; align-items:center; gap:6px; font-family:var(--mono); font-size:.58rem; letter-spacing:.06em; text-transform:uppercase; border:1px solid var(--rule-strong); color:var(--ink-faint); border-radius:10px; padding:7px 11px; cursor:pointer; transition:.14s var(--ease)}
+  .chip svg{width:13px; height:13px; flex:none}
+  .chip:hover{border-color:var(--iris); color:var(--iris-hi)}
+  .chip.on{border-color:var(--iris); color:var(--iris-hi); background:rgba(167,139,250,.14)}
+  .kind-desc{display:flex; align-items:center; gap:9px; font-family:var(--sans); font-size:.82rem; color:var(--ink); line-height:1.4; min-height:1.2em; margin-bottom:12px}
+  .kd-dot{width:9px; height:9px; border-radius:50%; flex:none; background:var(--kc,var(--iris)); box-shadow:0 0 10px var(--kc,var(--iris))}
+  .kd-text{flex:1}
+  .kind-desc.pop .kd-dot{animation:kdDot .5s var(--spring)}
+  .kind-desc.pop .kd-text{animation:kdText .4s var(--ease)}
+  @keyframes kdDot{0%{transform:scale(0)}60%{transform:scale(1.5)}100%{transform:scale(1)}}
+  @keyframes kdText{0%{opacity:0;transform:translateX(-6px);filter:blur(3px)}100%{opacity:1;transform:none;filter:none}}
+  .zoom{display:flex; align-items:center; gap:3px; background:rgba(255,255,255,.02); border:1px solid var(--rule-strong); border-radius:11px; padding:3px}
+  .ztn{font-family:var(--mono); font-size:.74rem; color:var(--ink-dim); background:transparent; border:none; border-radius:8px; width:28px; height:28px; cursor:pointer; transition:.14s var(--ease)}
+  .ztn:hover{background:rgba(167,139,250,.14); color:var(--iris-hi)}
+  .ztn.wide{width:auto; padding:0 10px; font-size:.58rem; letter-spacing:.12em; text-transform:uppercase}
+  .zlabel{font-family:var(--mono); font-size:.62rem; color:var(--ink-dim); min-width:40px; text-align:center}
+  .note-pop textarea{width:100%; height:64px; resize:none; background:rgba(0,0,0,.35); border:1px solid var(--rule); color:var(--ink); border-radius:10px; padding:10px; font-family:var(--sans); font-size:.88rem; outline:none}
+  .note-pop textarea:focus{border-color:var(--iris)}
+  .note-pop .row{display:flex; gap:8px; margin-top:11px}
+  .btn{flex:1; font-family:var(--mono); font-size:.6rem; letter-spacing:.1em; text-transform:uppercase; border-radius:10px; padding:11px; cursor:pointer; border:1px solid var(--rule-strong); background:transparent; color:var(--ink-dim); transition:.16s var(--ease)}
+  .btn:hover{border-color:var(--iris); color:var(--iris-hi)}
+  .btn.primary{background:var(--mint); color:#06251c; border-color:var(--mint); font-weight:600}
+  .btn.primary:hover{filter:brightness(1.08); transform:translateY(-1px)}
 
-  .side{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:16px;min-height:200px}
-  .side h2{font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:12px;display:flex;justify-content:space-between}
-  .side h2 span{color:var(--mint)}
-  .empty{color:var(--muted);font-size:13px;line-height:1.6;border:1px dashed var(--line);border-radius:12px;padding:16px;text-align:center}
-  .mark{display:flex;gap:11px;padding:11px;border:1px solid var(--line);border-radius:12px;margin-bottom:9px;background:var(--panel-2)}
-  .mark .num{flex:none;width:24px;height:24px;border-radius:50%;background:var(--mint);color:#04110c;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center}
-  .mark .body{flex:1;min-width:0}
-  .mark .body .k{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--mint-dim);margin-bottom:3px}
-  .mark .body .t{font-size:13px;line-height:1.45;color:var(--text);word-break:break-word}
-  .mark .x{color:var(--muted);cursor:pointer;font-size:14px;flex:none}
+  .side{background:var(--panel); border:1px solid var(--rule); border-radius:20px; padding:18px; min-height:200px; animation:cozyPop .6s var(--spring) .08s both}
+  .side h2{font-family:var(--mono); font-size:.62rem; text-transform:uppercase; letter-spacing:.16em; color:var(--ink-faint); margin-bottom:14px; display:flex; justify-content:space-between; align-items:center}
+  .side h2 span{color:var(--iris-hi); background:rgba(167,139,250,.1); border:1px solid var(--rule); border-radius:999px; padding:3px 10px; font-size:.6rem}
+  .empty{color:var(--ink-faint); font-size:.85rem; line-height:1.6; border:1px dashed var(--rule-strong); border-radius:14px; padding:18px; text-align:center}
+  .mark{display:flex; gap:11px; padding:12px; border:1px solid var(--rule); border-radius:14px; margin-bottom:9px; background:rgba(255,255,255,.015); animation:markIn .4s var(--spring) both}
+  .mark .num{flex:none; width:24px; height:24px; border-radius:50%; background:var(--iris); color:#0b0713; font-size:.72rem; font-weight:700; display:flex; align-items:center; justify-content:center; font-family:var(--mono)}
+  .mark .body{flex:1; min-width:0}
+  .mark .body .k{font-family:var(--mono); font-size:.54rem; text-transform:uppercase; letter-spacing:.1em; color:var(--iris); margin-bottom:4px}
+  .mark .body .t{font-size:.88rem; line-height:1.45; color:var(--ink); word-break:break-word}
+  .mark .x{color:var(--ink-faint); cursor:pointer; font-size:1rem; flex:none; transition:.14s}
   .mark .x:hover{color:var(--amber)}
-  .actions{display:flex;gap:9px;margin-top:14px}
+  .actions{display:flex; gap:9px; margin-top:16px}
 
-  .overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);display:none;align-items:center;justify-content:center;z-index:60;padding:24px}
-  .overlay.show{display:flex}
-  .overlay-card{background:var(--panel);border:1px solid var(--line);border-radius:18px;max-width:460px;width:100%;padding:28px;text-align:center}
-  .overlay-card .mk{width:54px;height:54px;border-radius:50%;background:rgba(127,231,196,.12);border:1px solid var(--mint-dim);display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
-  .overlay-card .mk svg{width:26px;height:26px;color:var(--mint)}
-  .overlay-card h3{font-size:21px;font-weight:600;margin-bottom:8px}
-  .overlay-card p{color:var(--muted);font-size:14px;line-height:1.55;margin-bottom:18px}
-  .overlay-card.err .mk{background:rgba(201,130,79,.12);border-color:var(--amber)}
+  .overlay{position:fixed; inset:0; background:rgba(2,3,6,.82); backdrop-filter:blur(8px); display:none; align-items:center; justify-content:center; z-index:60; padding:24px}
+  .overlay.show{display:flex; animation:cozyPop .4s var(--ease) both}
+  .overlay-card{background:linear-gradient(180deg,rgba(167,139,250,.06),rgba(8,8,14,.98)); border:1px solid var(--rule-strong); border-radius:22px; max-width:460px; width:100%; padding:34px 30px; text-align:center}
+  .overlay-card .mk{width:60px; height:60px; border-radius:50%; background:rgba(110,231,183,.12); border:1px solid var(--mint); display:flex; align-items:center; justify-content:center; margin:0 auto 18px; color:var(--mint); animation:checkBurst .6s var(--spring) both}
+  .overlay-card .mk svg{width:28px; height:28px}
+  .overlay-card h3{font-family:var(--serif); font-style:italic; font-size:1.75rem; font-weight:400; margin-bottom:9px}
+  .overlay-card p{color:var(--ink-dim); font-size:.9rem; line-height:1.55; margin-bottom:20px}
+  .overlay-card.err .mk{background:rgba(240,168,104,.12); border-color:var(--amber); color:var(--amber)}
   .overlay-card.err .mk svg{color:var(--amber)}
 </style>
 </head>
 <body>
+<div class="sky"></div>
 <div class="wrap">
   <header>
-    <h1><span class="accent serif">Blueprint</span></h1>
+    <div class="eyebrow">Vitality · Blueprint</div>
+    <h1><span class="accent">Blueprint</span></h1>
     <div class="target">Marking up <b id="targetName">your screenshot</b>. Draw, note each mark, then hit Done.</div>
   </header>
 
+  <div class="topbar">
+    <span class="tb-label">Markup</span>
+    <div class="spacer"></div>
+    <div class="zoom">
+      <button class="ztn" id="zoomOut" title="smaller">&minus;</button>
+      <span class="zlabel" id="zoomLabel">100%</span>
+      <button class="ztn" id="zoomIn" title="bigger">+</button>
+      <button class="ztn wide" id="zoomFit" title="fit to width">fit</button>
+    </div>
+    <label class="tool" style="cursor:pointer">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 16l5-5 4 4 7-7"/><path d="M4 20h16"/></svg>
+      Change image
+      <input id="file" type="file" accept="image/*" style="display:none" />
+    </label>
+  </div>
+
   <div class="layout">
-    <div class="stage">
+    <div class="stage-col">
+      <div class="stage">
       <div class="toolbar">
         <button class="tool active" data-tool="circle">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"/></svg>Circle
@@ -121,12 +156,6 @@
         <button class="tool" data-tool="pin">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s7-6.3 7-11a7 7 0 1 0-14 0c0 4.7 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>Pin
         </button>
-        <div class="spacer"></div>
-        <label class="tool" style="cursor:pointer">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 16l5-5 4 4 7-7"/><path d="M4 20h16"/></svg>
-          Change image
-          <input id="file" type="file" accept="image/*" style="display:none" />
-        </label>
       </div>
 
       <div class="canvas-host" id="host">
@@ -136,23 +165,31 @@
           <div>Drop a screenshot here, or click to choose one.</div>
         </div>
         <div class="note-pop" id="pop">
-          <label>What about this spot?</label>
+          <label>What do you want here?</label>
           <div class="kind" id="kinds">
-            <span class="chip on" data-k="add">add</span>
-            <span class="chip" data-k="move">move</span>
-            <span class="chip" data-k="remove">remove</span>
-            <span class="chip" data-k="connect">connect</span>
-            <span class="chip" data-k="restyle">restyle</span>
-            <span class="chip" data-k="note">note</span>
+            <span class="chip on" data-k="add" data-color="#6ee7b7" data-desc="Put something new right here." title="Put something new here">
+              <svg style="color:#6ee7b7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>Add</span>
+            <span class="chip" data-k="move" data-color="#a78bfa" data-desc="Pick this up and put it somewhere else." title="Move this elsewhere">
+              <svg style="color:#a78bfa" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>Move</span>
+            <span class="chip" data-k="remove" data-color="#f0a868" data-desc="Take this out completely." title="Delete this">
+              <svg style="color:#f0a868" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2M6 7l1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13"/></svg>Remove</span>
+            <span class="chip" data-k="connect" data-color="#7dd3fc" data-desc="Draw a link between two spots so they relate." title="Link two spots">
+              <svg style="color:#7dd3fc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 15l6-6"/><path d="M11 6l1-1a4 4 0 0 1 6 6l-1 1M13 18l-1 1a4 4 0 0 1-6-6l1-1"/></svg>Connect</span>
+            <span class="chip" data-k="restyle" data-color="#d8b4fe" data-desc="Keep it, but change how it looks (color, size, shape)." title="Change how it looks">
+              <svg style="color:#d8b4fe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20l8-8"/><path d="M14 4l1 2.2 2.4.3-1.8 1.7.5 2.4L14 9.4l-2.1 1.2.5-2.4L10.6 6.5l2.4-.3z"/></svg>Restyle</span>
+            <span class="chip" data-k="note" data-color="#a7f3d0" data-desc="Just a comment for me. Nothing needs to change." title="Leave a comment">
+              <svg style="color:#a7f3d0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8 8 0 0 1-8 8H8l-5 3 1.5-5A8 8 0 1 1 21 11.5z"/></svg>Note</span>
           </div>
-          <textarea id="noteText" placeholder="e.g. Vee tile goes here. Make it the motherboard, wired to every other tile."></textarea>
+          <div class="kind-desc" id="kindDesc" style="--kc:#6ee7b7"><span class="kd-dot"></span><span class="kd-text">Put something new right here.</span></div>
+          <textarea id="noteText" placeholder="Say it like you'd say it out loud. e.g. make this bigger and rounder"></textarea>
           <div class="row">
             <button class="btn" id="noteCancel">cancel</button>
-            <button class="btn primary" id="noteSave">pin note</button>
+            <button class="btn primary" id="noteSave">save mark</button>
           </div>
         </div>
       </div>
-      <p class="ghost" style="margin-top:10px">Tip: pick a tool, drag on the image, then write what you want there. Numbers match the notes on the right.</p>
+      </div>
+      <p class="ghost" style="margin-top:12px">Tip: pick a tool, drag on the image, then write what you want there. Numbers match the notes on the right.</p>
     </div>
 
     <div class="side">
@@ -218,16 +255,27 @@ function setImage(img){
 }
 
 // ---- sizing: canvas matches image aspect so canvas space == image space ----
+let zoom = 1;
 function fit(){
-  const w = host.clientWidth;
+  // measure full available width from the column (stable), not the stage card (which now hugs the image)
+  const col = host.closest('.stage-col');
+  const baseW = Math.max(160, (col ? col.clientWidth : host.clientWidth) - 34);
+  const w = Math.max(80, Math.round(baseW * zoom));
   const aspect = (bgImage && imgNatH) ? (imgNatW/imgNatH) : 1.6;
   const h = Math.round(w/aspect);
-  cv.width = w; cv.height = h; cv.style.height = h + 'px';
+  cv.width = w; cv.height = h; cv.style.width = w + 'px'; cv.style.height = h + 'px';
+  // shrink the bordered box to hug the image; when zoomed past full width, cap it and let it scroll
+  host.style.width = Math.min(w, baseW) + 'px';
   render();
+}
+function applyZoom(z){
+  zoom = Math.max(.4, Math.min(1, Math.round(z*10)/10));
+  const lbl = document.getElementById('zoomLabel'); if(lbl) lbl.textContent = Math.round(zoom*100)+'%';
+  fit();
 }
 
 function render(prev){
-  ctx.fillStyle = '#050706'; ctx.fillRect(0,0,cv.width,cv.height);
+  ctx.fillStyle = '#030407'; ctx.fillRect(0,0,cv.width,cv.height);
   if(bgImage){ ctx.drawImage(bgImage, 0, 0, cv.width, cv.height); }
   marks.forEach(m=>drawShape(m.geom, m.tool, m.n));
   if(prev) drawShape(prev.geom, prev.tool, null, true);
@@ -244,8 +292,8 @@ function px(geom, t){
 function drawShape(geom, t, n, live){
   const g = px(geom, t);
   ctx.save();
-  ctx.strokeStyle = live ? 'rgba(127,231,196,.6)' : '#7fe7c4';
-  ctx.fillStyle = '#7fe7c4'; ctx.lineWidth = 2.5;
+  ctx.strokeStyle = live ? 'rgba(167,139,250,.7)' : '#a78bfa';
+  ctx.fillStyle = '#a78bfa'; ctx.lineWidth = 2.5;
   if(t==='circle'){
     ctx.beginPath(); ctx.ellipse(g.cx,g.cy,Math.abs(g.rx),Math.abs(g.ry),0,0,Math.PI*2); ctx.stroke();
   } else if(t==='box'){
@@ -263,8 +311,8 @@ function drawShape(geom, t, n, live){
   }
   if(n!==null && n!==undefined){
     const p = labelPoint(g,t);
-    ctx.fillStyle='#7fe7c4'; ctx.beginPath(); ctx.arc(p.x,p.y,11,0,Math.PI*2); ctx.fill();
-    ctx.fillStyle='#04110c'; ctx.font='bold 13px Inter, sans-serif';
+    ctx.fillStyle='#a78bfa'; ctx.beginPath(); ctx.arc(p.x,p.y,11,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#0b0713'; ctx.font='bold 13px "JetBrains Mono", monospace';
     ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(n, p.x, p.y);
     ctx.textAlign='start'; ctx.textBaseline='alphabetic';
   }
@@ -316,19 +364,29 @@ function finishGeom(g){
   else if(tool==='box'){lx=g.x+g.w/2; ly=g.y+g.h/2;}
   else if(tool==='arrow'){lx=g.x2; ly=g.y2;}
   else {lx=g.x; ly=g.y;}
-  const W=cv.width, H=cv.height, w=290, ph=200;
+  const W=cv.width, H=cv.height, w=322, ph=260;
   let pxv=Math.min(Math.max(lx*W-w/2,8), W-w-8);
   let pyv=ly*H+16; if(pyv+ph>H) pyv=Math.max(ly*H-ph-8,8);
   pop.style.left=pxv+'px'; pop.style.top=pyv+'px'; pop.classList.add('show');
   pendingKind='add';
   document.querySelectorAll('#kinds .chip').forEach(c=>c.classList.toggle('on',c.dataset.k==='add'));
+  setDesc(document.querySelector('#kinds .chip[data-k="add"]'));
   const ta=document.getElementById('noteText'); ta.value=''; setTimeout(()=>ta.focus(),20);
+}
+const kindDescEl=document.getElementById('kindDesc');
+function setDesc(chip){
+  if(!kindDescEl||!chip) return;
+  kindDescEl.style.setProperty('--kc', chip.dataset.color||'#a78bfa');
+  const t=kindDescEl.querySelector('.kd-text'); if(t) t.textContent=chip.dataset.desc||'';
+  kindDescEl.classList.remove('pop'); void kindDescEl.offsetWidth; kindDescEl.classList.add('pop');
 }
 document.querySelectorAll('#kinds .chip').forEach(c=>{
   c.addEventListener('click',()=>{
     document.querySelectorAll('#kinds .chip').forEach(x=>x.classList.remove('on'));
-    c.classList.add('on'); pendingKind=c.dataset.k;
+    c.classList.add('on'); pendingKind=c.dataset.k; setDesc(c);
   });
+  c.addEventListener('mouseenter',()=>setDesc(c));
+  c.addEventListener('mouseleave',()=>{ const on=document.querySelector('#kinds .chip.on'); if(on) setDesc(on); });
 });
 document.getElementById('noteCancel').addEventListener('click',()=>{ pop.classList.remove('show'); pendingGeom=null; render(); });
 document.getElementById('noteSave').addEventListener('click', saveNote);
@@ -364,6 +422,9 @@ document.querySelectorAll('.tool[data-tool]').forEach(b=>{
   });
 });
 document.getElementById('clearBtn').addEventListener('click',()=>{marks=[];render();renderList();});
+document.getElementById('zoomOut').addEventListener('click',()=>applyZoom(zoom-0.1));
+document.getElementById('zoomIn').addEventListener('click',()=>applyZoom(zoom+0.1));
+document.getElementById('zoomFit').addEventListener('click',()=>applyZoom(1));
 
 // ---- file load / drag-drop ----
 function loadFile(f){
