@@ -120,12 +120,11 @@ function openBrowser(url) {
 
 let timer = null;
 function finish(written) {
-  clearTimeout(timer);
-  // Print the result for the slash command to surface, then shut down.
+  // Print the result for the slash command to surface. Keep the server ALIVE so the user
+  // can hit "Keep editing" and re-submit; it self-closes on the idle timeout.
   process.stdout.write('\nBLUEPRINT_SAVED\n');
   process.stdout.write('annotated_png: ' + written.png + '\n');
   process.stdout.write('blueprint_md:  ' + written.md + '\n');
-  setTimeout(() => { server.close(); process.exit(0); }, 150);
 }
 
 server.listen(0, '127.0.0.1', () => {

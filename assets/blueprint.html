@@ -106,7 +106,10 @@
 
   .overlay{position:fixed; inset:0; background:rgba(2,3,6,.82); backdrop-filter:blur(8px); display:none; align-items:center; justify-content:center; z-index:60; padding:24px}
   .overlay.show{display:flex; animation:cozyPop .4s var(--ease) both}
-  .overlay-card{background:linear-gradient(180deg,rgba(167,139,250,.06),rgba(8,8,14,.98)); border:1px solid var(--rule-strong); border-radius:22px; max-width:460px; width:100%; padding:34px 30px; text-align:center}
+  .overlay-card{position:relative; background:linear-gradient(180deg,rgba(167,139,250,.06),rgba(8,8,14,.98)); border:1px solid var(--rule-strong); border-radius:22px; max-width:460px; width:100%; padding:34px 30px; text-align:center}
+  .ovx{position:absolute; top:14px; right:16px; background:transparent; border:none; color:var(--ink-faint); font-size:1.5rem; line-height:1; cursor:pointer; transition:.14s}
+  .ovx:hover{color:var(--ink)}
+  .ovbtns{display:flex; gap:9px; justify-content:center}
   .overlay-card .mk{width:60px; height:60px; border-radius:50%; background:rgba(110,231,183,.12); border:1px solid var(--mint); display:flex; align-items:center; justify-content:center; margin:0 auto 18px; color:var(--mint); animation:checkBurst .6s var(--spring) both}
   .overlay-card .mk svg{width:28px; height:28px}
   .overlay-card h3{font-family:var(--serif); font-style:italic; font-size:1.75rem; font-weight:400; margin-bottom:9px}
@@ -206,10 +209,14 @@
 
 <div class="overlay" id="overlay">
   <div class="overlay-card" id="overlayCard">
+    <button class="ovx" id="ovX" title="back to editing">&times;</button>
     <div class="mk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg></div>
     <h3 id="ovTitle">Sent to Claude</h3>
     <p id="ovText">Your blueprint is saved. Head back to Claude Code. You can close this tab.</p>
-    <button class="btn primary" id="ovClose" style="display:none">download the files</button>
+    <div class="ovbtns">
+      <button class="btn" id="ovBack">&larr; Keep editing</button>
+      <button class="btn primary" id="ovClose" style="display:none">download the files</button>
+    </div>
   </div>
 </div>
 
@@ -468,6 +475,9 @@ function buildPayload(){
   };
 }
 document.getElementById('doneBtn').addEventListener('click', submit);
+function hideOverlay(){ document.getElementById('overlay').classList.remove('show'); document.getElementById('overlayCard').classList.remove('err'); }
+document.getElementById('ovX').addEventListener('click', hideOverlay);
+document.getElementById('ovBack').addEventListener('click', hideOverlay);
 async function submit(){
   if(!bgImage){ alert('Load a screenshot first.'); return; }
   if(!marks.length){ alert('Draw at least one mark first.'); return; }
@@ -484,15 +494,20 @@ async function submit(){
 }
 function showOverlay(isFallback){
   const card=document.getElementById('overlayCard');
+  const back=document.getElementById('ovBack');
   if(isFallback){
     card.classList.add('err');
     document.getElementById('ovTitle').textContent='Saved to your Downloads';
     document.getElementById('ovText').textContent='The local helper was not reachable, so the two files were downloaded instead. Go back to Claude Code and say "done" so it reads them.';
     const b=document.getElementById('ovClose'); b.style.display='block'; b.textContent='download again';
     b.onclick=()=>downloadFallback(buildPayload());
+    back.style.display='none';
   } else {
+    card.classList.remove('err');
     document.getElementById('ovTitle').textContent='Saved';
-    document.getElementById('ovText').textContent='Your blueprint is saved. Go back to Claude Code and say "done" so it reads your marks. You can close this tab.';
+    document.getElementById('ovText').textContent='Sent to Claude. Say "done" in the chat to apply your marks, or keep editing and submit again.';
+    document.getElementById('ovClose').style.display='none';
+    back.style.display='';
   }
   document.getElementById('overlay').classList.add('show');
 }
