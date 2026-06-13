@@ -18,11 +18,12 @@ No copy-paste, no describing pixel positions in words.
 Two lines, once:
 
 ```
-/plugin marketplace add ohwisey/blueprint
+/plugin marketplace add https://github.com/ohwisey/blueprint.git
 /plugin install blueprint
 ```
 
-That's it. Now you have `/blueprint` in every project.
+Run these in a **terminal `claude` session** (the `/plugin` command isn't available in the
+VS Code/JetBrains chat panel). That's it. Now you have `/blueprint` in every project.
 
 ## Use it
 

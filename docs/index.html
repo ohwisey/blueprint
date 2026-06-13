@@ -94,10 +94,10 @@
   <section id="install">
     <div class="kicker">Install</div>
     <h2>Two lines, once.</h2>
-    <div class="code" id="code"><span class="c"># in Claude Code</span><br><span class="m">/plugin</span> marketplace add ohwisey/blueprint<br><span class="m">/plugin</span> install blueprint
+    <div class="code" id="code"><span class="c"># in a terminal `claude` session</span><br><span class="m">/plugin</span> marketplace add https://github.com/ohwisey/blueprint.git<br><span class="m">/plugin</span> install blueprint
       <button class="copy" id="copy">Copy</button>
     </div>
-    <p class="after">Now you have <code>/blueprint</code> in every project.</p>
+    <p class="after">Run these in a terminal <code>claude</code> session (not the IDE chat panel). Now you have <code>/blueprint</code> in every project.</p>
   </section>
 
   <section>
@@ -139,7 +139,7 @@
   const btn = document.getElementById('copy');
   btn.addEventListener('click', async () => {
     try {
-      await navigator.clipboard.writeText('/plugin marketplace add ohwisey/blueprint\n/plugin install blueprint');
+      await navigator.clipboard.writeText('/plugin marketplace add https://github.com/ohwisey/blueprint.git\n/plugin install blueprint');
       btn.textContent = 'Copied'; btn.classList.add('done');
       setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('done'); }, 1600);
     } catch (e) { btn.textContent = 'Copy manually'; }
