@@ -19,7 +19,9 @@
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{height:100%}
-  body{background:var(--bg); color:var(--ink); font-family:var(--sans); -webkit-font-smoothing:antialiased; padding:30px 24px 44px; position:relative}
+  body{background:var(--bg); color:var(--ink); font-family:var(--sans); -webkit-font-smoothing:antialiased; padding:30px 24px 44px; position:relative; -webkit-user-select:none; user-select:none}
+  textarea, input, [contenteditable]{-webkit-user-select:text; user-select:text}
+  ::selection{background:rgba(110,231,183,.32); color:var(--ink)}
   .sky{position:fixed; inset:0; z-index:0; pointer-events:none; background:radial-gradient(70% 28vh at 50% 0%, var(--iris-glow), transparent 70%); opacity:.3}
   .wrap{position:relative; z-index:1; max-width:1320px; margin:0 auto}
 
@@ -63,9 +65,21 @@
   .drop.over{border-color:var(--iris); color:var(--iris-hi); background:rgba(167,139,250,.04)}
   .drop svg{width:34px; height:34px; opacity:.6}
 
-  .note-pop{position:absolute; z-index:30; width:322px; background:linear-gradient(180deg,rgba(167,139,250,.1),rgba(8,8,14,.97)); backdrop-filter:blur(12px); border:1px solid var(--iris); border-radius:18px; padding:16px; box-shadow:0 20px 55px rgba(0,0,0,.6); display:none}
-  .note-pop.show{display:block; animation:cozyPop .4s var(--spring) both}
+  .connector{position:fixed; inset:0; width:100vw; height:100vh; pointer-events:none; z-index:9998; display:none; overflow:visible}
+  .connector.show{display:block}
+  .connector line{stroke:var(--iris); stroke-width:2; stroke-dasharray:7 5; opacity:.75}
+  .connector .anchor{fill:var(--iris)}
+  .connector .anchor-ring{fill:none; stroke:var(--iris); stroke-width:1.5; opacity:.5}
+  .note-pop{position:fixed; z-index:9999; width:322px; height:auto; min-width:300px; max-width:92vw; min-height:240px; max-height:92vh; background:linear-gradient(180deg,#15131f,#08080d); border:1px solid var(--iris); border-radius:18px; padding:16px; box-shadow:0 20px 55px rgba(0,0,0,.6); display:none; resize:both; overflow:hidden}
+  .note-pop.show{display:flex; flex-direction:column; animation:cozyPop .4s var(--spring) both}
+  .note-pop::-webkit-resizer{background:transparent}
+  .note-pop .resize-grip{position:absolute; right:5px; bottom:5px; width:22px; height:22px; color:var(--iris-hi); opacity:.6; pointer-events:none}
+  .note-pop:hover .resize-grip{opacity:.95}
   .note-pop label{font-family:var(--serif); font-style:italic; font-size:1.2rem; color:var(--ink); display:block; margin-bottom:11px}
+  .note-pop label.pop-handle{display:flex; align-items:center; justify-content:space-between; gap:10px; cursor:grab; user-select:none; touch-action:none; margin:-6px -6px 9px; padding:6px 6px}
+  .note-pop label.pop-handle:active{cursor:grabbing}
+  .note-pop label.pop-handle .grip{width:20px; height:20px; flex:none; color:var(--iris-hi); opacity:.6; transition:opacity .2s}
+  .note-pop label.pop-handle:hover .grip{opacity:1}
   .note-pop .kind{display:flex; gap:7px; margin-bottom:9px; flex-wrap:wrap}
   .chip{display:inline-flex; align-items:center; gap:6px; font-family:var(--mono); font-size:.58rem; letter-spacing:.06em; text-transform:uppercase; border:1px solid var(--rule-strong); color:var(--ink-faint); border-radius:10px; padding:7px 11px; cursor:pointer; transition:.14s var(--ease)}
   .chip svg{width:13px; height:13px; flex:none}
@@ -83,7 +97,7 @@
   .ztn:hover{background:rgba(167,139,250,.14); color:var(--iris-hi)}
   .ztn.wide{width:auto; padding:0 10px; font-size:.58rem; letter-spacing:.12em; text-transform:uppercase}
   .zlabel{font-family:var(--mono); font-size:.62rem; color:var(--ink-dim); min-width:40px; text-align:center}
-  .note-pop textarea{width:100%; height:64px; resize:none; background:rgba(0,0,0,.35); border:1px solid var(--rule); color:var(--ink); border-radius:10px; padding:10px; font-family:var(--sans); font-size:.88rem; outline:none}
+  .note-pop textarea{width:100%; flex:1 1 auto; min-height:64px; resize:none; background:rgba(0,0,0,.35); border:1px solid var(--rule); color:var(--ink); border-radius:10px; padding:10px; font-family:var(--sans); font-size:.88rem; outline:none}
   .note-pop textarea:focus{border-color:var(--iris)}
   .note-pop .row{display:flex; gap:8px; margin-top:11px}
   .btn{flex:1; font-family:var(--mono); font-size:.6rem; letter-spacing:.1em; text-transform:uppercase; border-radius:10px; padding:11px; cursor:pointer; border:1px solid var(--rule-strong); background:transparent; color:var(--ink-dim); transition:.16s var(--ease)}
@@ -167,8 +181,26 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 16V4m0 0L8 8m4-4l4 4"/><path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
           <div>Drop a screenshot here, or click to choose one.</div>
         </div>
-        <div class="note-pop" id="pop">
-          <label>What do you want here?</label>
+      </div>
+      </div>
+      <p class="ghost" style="margin-top:12px">Tip: pick a tool, drag on the image, then write what you want there. Numbers match the notes on the right.</p>
+    </div>
+
+    <div class="side">
+      <h2>Marks <span id="count">0</span></h2>
+      <div id="list"></div>
+      <div class="empty" id="empty">No marks yet.<br/>Draw on the image and pin a note to start your blueprint.</div>
+      <div class="actions">
+        <button class="btn" id="clearBtn">clear</button>
+        <button class="btn primary" id="doneBtn">Done</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<svg class="connector" id="connector"></svg>
+<div class="note-pop" id="pop">
+          <label class="pop-handle" id="popHandle">What do you want here?<svg class="grip" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 9l-3 3 3 3M9 5l3-3 3 3M15 19l-3 3-3-3M19 9l3 3-3 3M2 12h20M12 2v20"/></svg></label>
           <div class="kind" id="kinds">
             <span class="chip on" data-k="add" data-color="#6ee7b7" data-desc="Put something new right here." title="Put something new here">
               <svg style="color:#6ee7b7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>Add</span>
@@ -189,23 +221,8 @@
             <button class="btn" id="noteCancel">cancel</button>
             <button class="btn primary" id="noteSave">save mark</button>
           </div>
+          <svg class="resize-grip" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 8L8 20M20 14l-6 6M20 20h.01"/></svg>
         </div>
-      </div>
-      </div>
-      <p class="ghost" style="margin-top:12px">Tip: pick a tool, drag on the image, then write what you want there. Numbers match the notes on the right.</p>
-    </div>
-
-    <div class="side">
-      <h2>Marks <span id="count">0</span></h2>
-      <div id="list"></div>
-      <div class="empty" id="empty">No marks yet.<br/>Draw on the image and pin a note to start your blueprint.</div>
-      <div class="actions">
-        <button class="btn" id="clearBtn">clear</button>
-        <button class="btn primary" id="doneBtn">Done</button>
-      </div>
-    </div>
-  </div>
-</div>
 
 <div class="overlay" id="overlay">
   <div class="overlay-card" id="overlayCard">
@@ -364,6 +381,49 @@ function buildGeom(a,b){
 
 // ---- note popover ----
 const pop=document.getElementById('pop');
+// connector: a leader line from the card to the spot you marked, so you never lose
+// where the outline is when you drag the card away or scroll a long page.
+const connector=document.getElementById('connector');
+let popAnchor=null; // {nx, ny} normalized point on the image the card belongs to
+function updateConnector(){
+  if(!popAnchor || !pop.classList.contains('show')){ connector.classList.remove('show'); return; }
+  const r=cv.getBoundingClientRect();
+  const ax=r.left+popAnchor.nx*r.width, ay=r.top+popAnchor.ny*r.height;
+  const pr=pop.getBoundingClientRect();
+  // attach to the closest point on the card's edge facing the mark
+  const ex=Math.max(pr.left, Math.min(ax, pr.right));
+  const ey=Math.max(pr.top, Math.min(ay, pr.bottom));
+  connector.innerHTML=
+    `<line x1="${ax}" y1="${ay}" x2="${ex}" y2="${ey}"/>`+
+    `<circle class="anchor-ring" cx="${ax}" cy="${ay}" r="9"/>`+
+    `<circle class="anchor" cx="${ax}" cy="${ay}" r="4"/>`;
+  connector.classList.add('show');
+}
+function hideConnector(){ popAnchor=null; connector.classList.remove('show'); }
+window.addEventListener('scroll',updateConnector,{passive:true});
+window.addEventListener('resize',updateConnector);
+// drag the popover by its title bar so it never hides the area you marked
+(function makePopDraggable(){
+  const handle=document.getElementById('popHandle');
+  let sx,sy,sl,st,dragging=false;
+  handle.addEventListener('pointerdown',e=>{
+    dragging=true; sx=e.clientX; sy=e.clientY;
+    sl=parseFloat(pop.style.left)||0; st=parseFloat(pop.style.top)||0;
+    handle.setPointerCapture(e.pointerId); e.preventDefault();
+  });
+  handle.addEventListener('pointermove',e=>{
+    if(!dragging) return;
+    const maxL=Math.max(window.innerWidth-pop.offsetWidth,0), maxT=Math.max(window.innerHeight-pop.offsetHeight,0);
+    pop.style.left=Math.min(Math.max(sl+(e.clientX-sx),0),maxL)+'px';
+    pop.style.top =Math.min(Math.max(st+(e.clientY-sy),0),maxT)+'px';
+    updateConnector();
+  });
+  const end=e=>{ if(dragging){dragging=false; try{handle.releasePointerCapture(e.pointerId);}catch(_){}} };
+  handle.addEventListener('pointerup',end);
+  handle.addEventListener('pointercancel',end);
+})();
+// keep the line live while the card is resized too
+if(window.ResizeObserver){ new ResizeObserver(updateConnector).observe(pop); }
 function finishGeom(g){
   pendingGeom = {geom:g, tool}; render(pendingGeom);
   let lx, ly;
@@ -371,10 +431,13 @@ function finishGeom(g){
   else if(tool==='box'){lx=g.x+g.w/2; ly=g.y+g.h/2;}
   else if(tool==='arrow'){lx=g.x2; ly=g.y2;}
   else {lx=g.x; ly=g.y;}
-  const W=cv.width, H=cv.height, w=322, ph=260;
-  let pxv=Math.min(Math.max(lx*W-w/2,8), W-w-8);
-  let pyv=ly*H+16; if(pyv+ph>H) pyv=Math.max(ly*H-ph-8,8);
+  // place in viewport coords (pop is position:fixed) so it can sit anywhere on the page
+  const r=cv.getBoundingClientRect(), w=322, ph=260;
+  const cxv=r.left+lx*r.width, cyv=r.top+ly*r.height;
+  let pxv=Math.min(Math.max(cxv-w/2,8), window.innerWidth-w-8);
+  let pyv=cyv+16; if(pyv+ph>window.innerHeight) pyv=Math.max(cyv-ph-8,8);
   pop.style.left=pxv+'px'; pop.style.top=pyv+'px'; pop.classList.add('show');
+  popAnchor={nx:lx, ny:ly}; updateConnector();
   pendingKind='add';
   document.querySelectorAll('#kinds .chip').forEach(c=>c.classList.toggle('on',c.dataset.k==='add'));
   setDesc(document.querySelector('#kinds .chip[data-k="add"]'));
@@ -395,13 +458,13 @@ document.querySelectorAll('#kinds .chip').forEach(c=>{
   c.addEventListener('mouseenter',()=>setDesc(c));
   c.addEventListener('mouseleave',()=>{ const on=document.querySelector('#kinds .chip.on'); if(on) setDesc(on); });
 });
-document.getElementById('noteCancel').addEventListener('click',()=>{ pop.classList.remove('show'); pendingGeom=null; render(); });
+document.getElementById('noteCancel').addEventListener('click',()=>{ pop.classList.remove('show'); hideConnector(); pendingGeom=null; render(); });
 document.getElementById('noteSave').addEventListener('click', saveNote);
 document.getElementById('noteText').addEventListener('keydown',e=>{ if(e.key==='Enter' && (e.metaKey||e.ctrlKey)) saveNote(); });
 function saveNote(){
   const note=document.getElementById('noteText').value.trim() || '(no note)';
   marks.push({n:marks.length+1, tool:pendingGeom.tool, kind:pendingKind, note, geom:pendingGeom.geom});
-  pop.classList.remove('show'); pendingGeom=null; render(); renderList();
+  pop.classList.remove('show'); hideConnector(); pendingGeom=null; render(); renderList();
 }
 
 // ---- side list ----
