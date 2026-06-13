@@ -21,7 +21,7 @@ const projectDir = process.argv[3] && process.argv[3].trim() ? process.argv[3].t
 const PLUGIN_ROOT = path.join(__dirname, '..');
 const HTML_PATH = path.join(PLUGIN_ROOT, 'assets', 'blueprint.html');
 const OUT_DIR = path.join(projectDir, '.blueprint');
-const TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes
+const TIMEOUT_MS = 60 * 60 * 1000; // 60 minutes — keep alive so Done auto-ships to Claude (no download fallback)
 
 const screenshotPath = screenshotArg
   ? (path.isAbsolute(screenshotArg) ? screenshotArg : path.resolve(projectDir, screenshotArg))
