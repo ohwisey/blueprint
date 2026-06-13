@@ -1,74 +1,128 @@
 # Blueprint
 
-A Claude Code plugin. Draw on a screenshot, pin a note to each mark, and hand Claude the
-marked-up image **plus** your notes automatically. No copy-paste.
+**Draw on a screenshot. Hand Claude exactly what you mean, and where.**
 
-The point: let Claude *see* what you mean and *where*, instead of guessing from a wall of text.
-Circle the middle of your dashboard, write "Vee tile here, wired to every other tile like a
-motherboard," and Claude gets the picture and the intent in one shot.
+Blueprint is a Claude Code plugin. Run it, draw on a picture of your app, type a short note on
+each mark, and click Done. Claude gets the marked-up image **and** your notes automatically.
+No copy-paste, no describing pixel positions in words.
 
-## What it looks like
+![Blueprint in action](docs/hero.png)
 
-1. You run `/blueprint ./screenshot.png`
-2. A browser tab opens with your screenshot on a canvas
-3. You draw circles / boxes / arrows / pins and type a short note on each (tag it add / move /
-   remove / connect / restyle / note)
-4. You click **Done**
-5. Claude automatically reads the annotated image and your notes, then acts on them
+> Circle a spot, write "make this the hero greeting, warmer and bigger," and Claude sees the
+> picture and the intent in one shot. Pointing is faster than describing.
+
+---
 
 ## Install
 
+Two lines, once:
+
 ```
-/plugin marketplace add <path-or-repo-of-this-folder>
+/plugin marketplace add ohwisey/blueprint
 /plugin install blueprint
 ```
 
-Then in any project:
+That's it. Now you have `/blueprint` in every project.
+
+## Use it
 
 ```
 /blueprint path/to/screenshot.png
 ```
 
-You can also run `/blueprint` with no path and drag an image into the page.
+or just:
 
-## Requirements
+```
+/blueprint
+```
 
-- **Node.js** for the smooth no-copy-paste path (the plugin runs a tiny local server on
-  `127.0.0.1`). If Node is not found, Blueprint falls back to a simple download-and-read so it
-  still works with zero setup.
-- Any modern browser (Chrome, Safari, Firefox, Edge).
+…and paste a URL, drop in an image, or give a file path when it asks.
 
-## How it works (under the hood)
+A browser tab opens with your image on a canvas. Then:
 
-- `/blueprint` launches a tiny **loopback web server** that serves the annotation canvas at
-  `http://127.0.0.1:PORT/` and catches your finished work via a same-origin POST. Loopback to
-  loopback needs no permission prompt and no CORS, so it is friction-free in every browser.
-- On **Done**, the page POSTs the annotated PNG + your marks. The server writes
-  `annotated.png`, `blueprint.md`, and a `paths.json` sentinel into `.blueprint/` in your project.
-- Claude reads the PNG **by path** (so it enters vision context cleanly) and reads the small
-  `blueprint.md` inline, then applies each numbered mark.
+1. **Pick a tool** — circle, box, arrow, or pin.
+2. **Draw** on the part you mean.
+3. **Tag it and write a note** — say it like you'd say it out loud.
+4. **Click Done.**
 
-Output lives in `<your project>/.blueprint/` and is git-ignored by default.
+Claude reads your marked-up image and notes, and gets to work. Output lands in
+`<your project>/.blueprint/` (git-ignored).
 
-## What Claude receives
+## The six intents
 
-`blueprint.md` looks like:
+Each mark gets one tag so Claude knows what you want, not just where:
+
+| Tag | Color | Means |
+|-----|-------|-------|
+| **Add** | mint | Put something new right here. |
+| **Move** | iris | Pick this up and put it somewhere else. |
+| **Remove** | amber | Take this out completely. |
+| **Edit** | sky | Keep it, just fix the words or numbers. |
+| **Restyle** | violet | Keep it, change how it looks. |
+| **Note** | green | A comment for Claude. Nothing has to change. |
+
+## Nice touches
+
+- **Drag the note card anywhere** by its title bar, so it never covers the spot you marked.
+- **A leader line** connects the card back to your mark, so you never lose the spot on a long page.
+- **Resize the card** from its corner when you have a lot to say.
+- Works on a **URL** (Claude screenshots the page for you) or any **image** you give it.
+
+---
+
+## Examples
+
+### A single mark
+
+You circle the middle of a dashboard and tag it **Add**:
+
+> "Vee tile goes here. Make it the motherboard, wired to every other tile."
+
+Claude receives a `blueprint.md` like this:
 
 ```
 # Blueprint
-Target: screenshot.png
-Marks: 2
+Target: dashboard.png
+Marks: 1
 
 [1] circle at dead center — ADD
       Vee tile goes here. Make it the motherboard, wired to every other tile.
       coords: center {x:0.50,y:0.50} r {x:0.12,y:0.18} (img 1280x720)
-
-[2] arrow at top right — CONNECT
-      Wire the Vee tile to every other tile.
-      coords: from {x:0.78,y:0.12} to {x:0.41,y:0.55} (img 1280x720)
 ---
-Instruction to Claude: apply each mark to the design. Numbers above match the circled numbers on annotated.png.
+Instruction to Claude: apply each mark to the design. Numbers above match the
+circled numbers on annotated.png.
 ```
+
+…plus `annotated.png` (your image with a numbered badge on the mark). Claude reads the image
+by path so it enters vision cleanly, reads the notes inline, and applies each mark.
+
+### A few marks at once
+
+Box the header → **Restyle** ("flatter, less shadow"). Arrow from the logo to the corner →
+**Move**. Pin the footer → **Remove**. One Done, and Claude has the whole change set with the
+exact locations.
+
+See [`examples/`](examples/) for full sample output.
+
+---
+
+## Requirements
+
+- **Node.js** for the seamless path (Blueprint runs a tiny local server on `127.0.0.1` to catch
+  your work). No Node? It falls back to a one-click download Claude reads from your Downloads —
+  zero setup either way.
+- Any modern browser.
+
+## How it works
+
+- `/blueprint` starts a tiny **loopback web server** that serves the annotation canvas at
+  `http://127.0.0.1:PORT/`. Loopback-to-loopback needs no permission prompt and no CORS, so it's
+  friction-free in every browser.
+- On **Done**, the page sends back the annotated PNG + your marks. The server writes
+  `annotated.png`, `blueprint.md`, and a `paths.json` sentinel into `.blueprint/` in your project.
+- A Stop hook hands those to Claude, who reads the image by path and applies each numbered mark.
+
+Everything stays on your machine. Nothing is uploaded.
 
 ## License
 
