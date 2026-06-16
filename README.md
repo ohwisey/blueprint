@@ -23,18 +23,18 @@ Two lines, once:
 ```
 
 Run these in a **terminal `claude` session** (the `/plugin` command isn't available in the
-VS Code/JetBrains chat panel). That's it. Now you have `/blueprint` in every project.
+VS Code/JetBrains chat panel). That's it. Now you have `/blueprint:draw` in every project.
 
 ## Use it
 
 ```
-/blueprint path/to/screenshot.png
+/blueprint:draw path/to/screenshot.png
 ```
 
 or just:
 
 ```
-/blueprint
+/blueprint:draw
 ```
 
 …and paste a URL, drop in an image, or give a file path when it asks.
@@ -116,7 +116,7 @@ See [`examples/`](examples/) for full sample output.
 
 ## How it works
 
-- `/blueprint` starts a tiny **loopback web server** that serves the annotation canvas at
+- `/blueprint:draw` starts a tiny **loopback web server** that serves the annotation canvas at
   `http://127.0.0.1:PORT/`. Loopback-to-loopback needs no permission prompt and no CORS, so it's
   friction-free in every browser.
 - On **Done**, the page sends back the annotated PNG + your marks. The server writes
