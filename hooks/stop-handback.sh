@@ -20,5 +20,5 @@ fi
 
 # Fresh, unconsumed blueprint: consume it, then ask Claude to read the files.
 rm -f "$SENTINEL"
-printf '%s\n' '{"decision":"block","reason":"A Blueprint was just captured. Read .blueprint/annotated.png (the marked-up image) and .blueprint/blueprint.md (the structured notes) from the project root, then apply each numbered mark to the design. Each mark has a tag (ADD / MOVE / REMOVE / CONNECT / RESTYLE / NOTE) and the numbers match the circled numbers on the image."}'
+printf '%s\n' '{"decision":"block","reason":"A Blueprint was just captured. Read .blueprint/annotated.png (the marked-up image) and .blueprint/blueprint.md (the structured notes) from the project root. First map the screenshot to its source file(s) in this project; if you cannot confidently map it, do not guess — describe what you see and ask the user what to apply the marks to, then stop. Once mapped, apply each numbered mark. Each mark has a tag (ADD / MOVE / REMOVE / EDIT / RESTYLE / NOTE) and the numbers match the circled numbers on the image."}'
 exit 0

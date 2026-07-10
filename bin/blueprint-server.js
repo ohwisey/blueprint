@@ -51,7 +51,10 @@ const server = http.createServer((req, res) => {
 
   if (req.method === 'GET' && url === '/config') {
     const target = hasImage ? path.basename(screenshotPath) : 'your screenshot';
-    return send(res, 200, 'application/json', JSON.stringify({ target, hasImage, mode: 'server' }));
+    // claude:true only when the slash command launched us (launch.sh sets BLUEPRINT_CLAUDE=1),
+    // so the page never claims "sent to Claude" when no session is listening.
+    const claude = process.env.BLUEPRINT_CLAUDE === '1';
+    return send(res, 200, 'application/json', JSON.stringify({ target, hasImage, mode: 'server', claude, outDir: OUT_DIR }));
   }
 
   if (req.method === 'GET' && url === '/screenshot') {
@@ -136,7 +139,7 @@ server.listen(0, '127.0.0.1', () => {
   process.stdout.write('Draw your marks, add a note to each, then click Done. Waiting...\n');
   if (!process.env.BLUEPRINT_NO_OPEN) openBrowser(url);
   timer = setTimeout(() => {
-    process.stdout.write('\nBLUEPRINT_TIMEOUT after 10 minutes. Re-run /blueprint when ready.\n');
+    process.stdout.write('\nBLUEPRINT_TIMEOUT after 60 minutes. Re-run /blueprint:draw when ready.\n');
     server.close(); process.exit(1);
   }, TIMEOUT_MS);
 });

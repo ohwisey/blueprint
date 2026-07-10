@@ -3,7 +3,7 @@
   "owner": { "name": "Luke Wise" },
   "metadata": {
     "description": "Blueprint: draw on a screenshot and hand the design intent to Claude.",
-    "version": "0.1.0"
+    "version": "0.2.0"
   },
   "plugins": [
     {

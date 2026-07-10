@@ -35,7 +35,13 @@ Read the marks the user saved:
   - Read `${CLAUDE_PROJECT_DIR}/.blueprint/blueprint.md` (the structured notes)
 - If there is no `paths.json` (Blueprint ran in download mode), use Glob to find the newest `blueprint.png` and `blueprint.md` under `~/Downloads`, then read both.
 
-## Step 4 — apply each mark
+## Step 4 — map the image to the project, THEN apply
+
+**Before changing anything**, work out what the screenshot actually is:
+
+- If it is a page/component **from this project**, find the source file(s) it corresponds to. Say which file you matched it to in one line.
+- If you **cannot confidently map it** to anything in this project (a random image, a screenshot of someone else's app, a photo), do NOT guess and do NOT edit unrelated files. Instead, tell the user in plain words what you see and ask ONE question: "What should I apply these marks to — a file in this project, or should I build this as a new page?" Then STOP and wait.
+- If the user says build it new, create it fresh (a standalone HTML file unless they say otherwise) honoring every mark.
 
 Each mark has a number (matching the badge on the image), a shape, a position, a tag, and the user's note. For each one, say in one line what you are about to change, then change it:
 - **ADD** — create the described element at that spot

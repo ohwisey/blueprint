@@ -20,7 +20,7 @@ mkdir -p "$OUT_DIR"
 rm -f "$OUT_DIR/paths.json" "$OUT_DIR/consumed"
 
 if command -v node >/dev/null 2>&1; then
-  nohup node "$PLUGIN_ROOT/bin/blueprint-server.js" "$SCREENSHOT" "$PROJECT_DIR" \
+  BLUEPRINT_CLAUDE=1 nohup node "$PLUGIN_ROOT/bin/blueprint-server.js" "$SCREENSHOT" "$PROJECT_DIR" \
     > "$OUT_DIR/server.log" 2>&1 &
   echo "Blueprint is opening in your browser."
   echo "Draw your marks, add a note to each, then click Done."
