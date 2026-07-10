@@ -10,7 +10,13 @@ You are running **Blueprint**: get an image in front of the user to draw on, the
 
 - **If `$ARGUMENTS` is empty:** reply with exactly this and then STOP and end your turn (do not run anything):
   > Send me a URL or a screenshot to mark up. (Paste a link, drop an image, or give me a file path.)
-- **If it is a URL** (starts with `http://` or `https://`): capture a **full-page** screenshot of it to `/tmp/blueprint-capture.png` using your browser screenshot tool (navigate to the URL, then take a full-page screenshot saved to that path). Set the image path to `/tmp/blueprint-capture.png`.
+- **If it is a URL** (starts with `http://` or `https://`): capture a **full-page** screenshot of it to `/tmp/blueprint-capture.png`, trying these in order until one works:
+  1. **Your browser tool** (Playwright or similar MCP), if you have one: navigate to the URL, take a full-page screenshot saved to that path.
+  2. **Headless Chrome via Bash** (works with no browser tool installed). On macOS:
+     `"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless --disable-gpu --hide-scrollbars --window-size=1440,2400 --screenshot=/tmp/blueprint-capture.png "<URL>"`
+     On Linux try `google-chrome`, `chromium`, or `chromium-browser` with the same flags. Ignore stderr noise; only check that the PNG file exists afterwards.
+  3. **Neither worked:** tell the user "I can't screenshot URLs on this machine. Take a screenshot of the page yourself (Cmd+Shift+4 on Mac) and drop it here instead." Then STOP.
+  - Set the image path to `/tmp/blueprint-capture.png`.
   - If the captured page looks like a **login / sign-in screen**, tell the user: "That page is behind a login, so I only see the sign-in screen. Send me a screenshot of your actual view instead." Then STOP.
 - **Otherwise** treat `$ARGUMENTS` as a path to an image file already on disk. Use that path. (If the user pasted/attached an image, save it to `/tmp/blueprint-capture.png` and use that.)
 
