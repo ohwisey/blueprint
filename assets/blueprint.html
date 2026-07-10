@@ -623,7 +623,7 @@ function showOverlay(isFallback){
     // nothing is listening, so point at the files and offer a download.
     card.classList.remove('err');
     document.getElementById('ovTitle').textContent='Saved to disk';
-    document.getElementById('ovText').textContent='Your marks were saved to '+(cfg.outDir||'.blueprint/')+' — but this canvas is not attached to a Claude Code session, so nothing happens by itself. Run /blueprint:draw inside Claude Code for the hands-free flow, or download the files and paste them into any Claude chat.';
+    document.getElementById('ovText').textContent='Your marks were saved to '+(cfg.outDir||'.blueprint/')+'. This canvas is not attached to a Claude Code session, so nothing happens by itself. Run /blueprint:draw inside Claude Code for the hands-free flow, or download the files and paste them into any Claude chat.';
     const b=document.getElementById('ovClose'); b.style.display='block'; b.textContent='download the files';
     b.onclick=()=>downloadFallback(buildPayload());
     back.style.display='';

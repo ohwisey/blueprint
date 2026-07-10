@@ -75,9 +75,9 @@ Each mark gets one tag so Claude knows what you want, not just where:
 - **A leader line** connects the card back to your mark, so you never lose the spot on a long page.
 - **Resize the card** from its corner when you have a lot to say.
 - Works on a **URL** (Claude screenshots the page for you) or any **image** you give it.
-- **Honest when detached** — if the canvas is running without a Claude Code session (you started the
+- **Honest when detached.** If the canvas is running without a Claude Code session (you started the
   server by hand), Done says so and offers the files as a download instead of pretending Claude got them.
-- **Never guesses** — if the marked image doesn't match anything in your project, Claude asks what to
+- **Never guesses.** If the marked image doesn't match anything in your project, Claude asks what to
   apply the marks to (or offers to build it fresh) instead of editing random files.
 
 ---
