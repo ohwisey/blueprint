@@ -105,6 +105,37 @@
   .btn.primary{background:var(--mint); color:#06251c; border-color:var(--mint); font-weight:600}
   .btn.primary:hover{filter:brightness(1.08); transform:translateY(-1px)}
 
+  /* ---- help card ---- */
+  .help-btn{font-family:var(--mono); font-size:.72rem; color:var(--ink-dim); background:rgba(255,255,255,.02);
+    border:1px solid var(--rule-strong); border-radius:50%; width:34px; height:34px; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; transition:.16s var(--ease)}
+  .help-btn:hover{border-color:var(--iris); color:var(--iris-hi); transform:translateY(-1px)}
+  .help-btn.lit{border-color:var(--iris); color:var(--iris-hi); background:rgba(167,139,250,.12)}
+  .help-card{position:fixed; right:24px; bottom:24px; z-index:9990; width:340px; max-width:calc(100vw - 48px);
+    background:linear-gradient(180deg,#14121e,#07070c); border:1px solid var(--iris); border-radius:18px; padding:18px;
+    box-shadow:0 22px 60px rgba(0,0,0,.65);
+    opacity:0; transform:translateY(18px) scale(.96); pointer-events:none;
+    transition:opacity .28s var(--ease), transform .45s var(--spring)}
+  .help-card.show{opacity:1; transform:none; pointer-events:auto}
+  .hc-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:8px}
+  .hc-eyebrow{font-family:var(--mono); font-size:.58rem; letter-spacing:.22em; text-transform:uppercase; color:var(--iris-hi)}
+  .hc-x{background:none; border:none; color:var(--ink-faint); font-size:1.15rem; cursor:pointer; line-height:1; padding:2px 4px; transition:.14s}
+  .hc-x:hover{color:var(--ink)}
+  .help-card h3{font-family:var(--serif); font-style:italic; font-weight:400; font-size:1.25rem; margin-bottom:12px}
+  .hc-list{list-style:none; display:flex; flex-direction:column; gap:9px; margin-bottom:12px}
+  .hc-list li{display:flex; gap:10px; align-items:flex-start; font-size:.84rem; line-height:1.45; color:var(--ink-dim); opacity:0}
+  .help-card.show .hc-list li{animation:markIn .45s var(--spring) both}
+  .help-card.show .hc-list li:nth-child(1){animation-delay:.1s}
+  .help-card.show .hc-list li:nth-child(2){animation-delay:.18s}
+  .help-card.show .hc-list li:nth-child(3){animation-delay:.26s}
+  .help-card.show .hc-list li:nth-child(4){animation-delay:.34s}
+  .hc-n{flex:none; width:20px; height:20px; border-radius:50%; margin-top:1px; background:rgba(167,139,250,.14);
+    border:1px solid var(--iris); color:var(--iris-hi); font-family:var(--mono); font-size:.6rem; font-weight:500;
+    display:flex; align-items:center; justify-content:center}
+  .hc-list b{color:var(--ink); font-weight:500}
+  .hc-fine{font-size:.72rem; line-height:1.5; color:var(--ink-faint); border-top:1px solid var(--rule); padding-top:10px}
+  .hc-fine b{color:var(--mint); font-weight:500}
+
   .side{background:var(--panel); border:1px solid var(--rule); border-radius:20px; padding:18px; min-height:200px; animation:cozyPop .6s var(--spring) .08s both}
   .side h2{font-family:var(--mono); font-size:.62rem; text-transform:uppercase; letter-spacing:.16em; color:var(--ink-faint); margin-bottom:14px; display:flex; justify-content:space-between; align-items:center}
   .side h2 span{color:var(--iris-hi); background:rgba(167,139,250,.1); border:1px solid var(--rule); border-radius:999px; padding:3px 10px; font-size:.6rem}
@@ -155,6 +186,7 @@
       Change image
       <input id="file" type="file" accept="image/*" style="display:none" />
     </label>
+    <button class="help-btn" id="helpBtn" title="how Blueprint works">?</button>
   </div>
 
   <div class="layout">
@@ -196,6 +228,21 @@
       </div>
     </div>
   </div>
+</div>
+
+<div class="help-card" id="helpCard">
+  <div class="hc-head">
+    <span class="hc-eyebrow">How it works</span>
+    <button class="hc-x" id="helpX" title="close">&times;</button>
+  </div>
+  <h3>Point, don't describe.</h3>
+  <ol class="hc-list">
+    <li><span class="hc-n">1</span><span><b>Draw</b> on the part you mean with a circle, box, arrow or pin.</span></li>
+    <li><span class="hc-n">2</span><span><b>Tag it</b> so Claude knows the intent: Add, Move, Remove, Edit, Restyle or Note.</span></li>
+    <li><span class="hc-n">3</span><span><b>Write the note</b> like you'd say it out loud. Drag the card aside if it covers your mark.</span></li>
+    <li><span class="hc-n">4</span><span><b>Hit Done</b>, then say <b>done</b> in the Claude chat and watch it apply every mark.</span></li>
+  </ol>
+  <p class="hc-fine">Best on screenshots of <b>your own app</b>, so Claude can find the real code behind each mark. Everything stays on your machine.</p>
 </div>
 
 <svg class="connector" id="connector"></svg>
@@ -601,6 +648,22 @@ function buildMarkdown(p){
 
 window.addEventListener('resize',fit);
 fit(); renderList(); loadConfig();
+
+// ---- help card ----
+const helpCard = document.getElementById('helpCard');
+const helpBtn = document.getElementById('helpBtn');
+function setHelp(on){
+  helpCard.classList.toggle('show', on);
+  helpBtn.classList.toggle('lit', on);
+  if(on){ try{ localStorage.setItem('bp_help_seen','1'); }catch(e){} }
+}
+helpBtn.addEventListener('click', ()=>setHelp(!helpCard.classList.contains('show')));
+document.getElementById('helpX').addEventListener('click', ()=>setHelp(false));
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') setHelp(false); });
+// First visit ever: open it once, after the page has settled.
+let helpSeen = false;
+try{ helpSeen = !!localStorage.getItem('bp_help_seen'); }catch(e){}
+if(!helpSeen) setTimeout(()=>setHelp(true), 900);
 </script>
 </body>
 </html>
