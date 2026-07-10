@@ -15,15 +15,22 @@ No copy-paste, no describing pixel positions in words.
 
 ## Install
 
-Two lines, once:
+Two commands, once. Run them **one at a time** in a **terminal `claude` session** (the
+`/plugin` command isn't available in the VS Code/JetBrains chat panel).
+
+First:
 
 ```
 /plugin marketplace add https://github.com/ohwisey/blueprint.git
+```
+
+Then:
+
+```
 /plugin install blueprint
 ```
 
-Run these in a **terminal `claude` session** (the `/plugin` command isn't available in the
-VS Code/JetBrains chat panel). That's it. Now you have `/blueprint:draw` in every project.
+That's it. Now you have `/blueprint:draw` in every project.
 
 ## Use it
 
